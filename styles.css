@@ -1,0 +1,354 @@
+:root {
+  --bg: #0b1016;
+  --bg2: #0e141c;
+  --panel: #121a24;
+  --card: #151f2b;
+  --fg: #eaf1f8;
+  --muted: #a9b7c6;
+  --accent: #72c6ff;
+  --accent-ink: #052339;
+  --danger: #ff5470;
+  --danger-ink: #2a0d16;
+  --ok: #72f1b8;
+  --radius: 18px;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font: 17px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial;
+  color: var(--fg);
+  background: radial-gradient(
+      1200px 800px at 10% -10%,
+      #1c2734 0%,
+      transparent 60%
+    ),
+    radial-gradient(1200px 800px at 110% 10%, #18222e 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+}
+
+/* Appbar */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.2rem;
+  background: rgba(15, 20, 28, 0.7);
+  border-bottom: 1px solid #1e2a38;
+  backdrop-filter: blur(8px);
+}
+.app-title {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.app-actions {
+  margin-left: auto;
+}
+button {
+  cursor: pointer;
+}
+.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  padding: 0.8rem 1.05rem;
+  border-radius: 14px;
+  font-weight: 800;
+}
+.ghost {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid #263344;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+}
+
+/* Layout */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.4rem;
+}
+.view {
+  display: none;
+}
+.view.active {
+  display: block;
+}
+h2 {
+  margin: 0.5rem 0 1.2rem;
+  font-size: 1.28rem;
+  color: #f0f6ff;
+}
+.small {
+  font-size: 0.92rem;
+}
+.muted {
+  color: var(--muted);
+}
+.row {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+input,
+textarea {
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid #263344;
+  border-radius: 14px;
+  padding: 0.9rem 1.05rem;
+  outline: none;
+  width: 100%;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid #223042;
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+  box-shadow: var(--shadow);
+}
+.modal {
+  border: none;
+  max-width: min(92vw, 720px);
+}
+.hidden {
+  display: none;
+}
+
+/* Topbar / Hostbar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+.roomline {
+  font-weight: 800;
+}
+
+/* ✅ Hostbar：預設隱藏；只有 body.is-host 才顯示 */
+#hostBar {
+  display: none;
+}
+body.is-host #hostBar {
+  display: flex;
+  margin: 1.1rem 0 1.4rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 16px;
+  background: #0f1a24;
+  border: 1px solid #213142;
+  justify-content: space-between;
+  align-items: center;
+}
+.host-dot {
+  display: inline-block;
+  width: 0.62rem;
+  height: 0.62rem;
+  background: var(--ok);
+  border-radius: 50%;
+  margin-right: 0.55rem;
+}
+
+/* Grid cards */
+.grid {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid #223042;
+  border-radius: 20px;
+  padding: 1.2rem 1.2rem 1.35rem;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover {
+  transform: translateY(-2px);
+}
+.card .name {
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.55rem;
+}
+.card .rule {
+  font-size: 1.12rem;
+  line-height: 1.5;
+  color: #f1f7ff;
+}
+.card .rule.muted {
+  color: #98a9ba;
+}
+
+/* Host 專用「重抽」 */
+.card .chip {
+  position: absolute;
+  top: 0.95rem;
+  right: 0.95rem;
+  font-size: 0.86rem;
+  background: #0f2531;
+  border: 1px solid #2a3a4a;
+  color: #cde8ff;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+}
+
+/* 犯規閃紅動畫 */
+.card.violation {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 8px rgba(255, 84, 112, 0.22), var(--shadow);
+  animation: jiggle 0.75s ease both;
+}
+@keyframes jiggle {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.035);
+  }
+  40% {
+    transform: scale(0.99);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 彈窗們 */
+.hit-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+.hit-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+.hit-card {
+  width: min(92vw, 560px);
+  margin: 12vh auto;
+  text-align: center;
+  background: var(--danger-ink);
+  border: 1px solid #57212c;
+  border-radius: 20px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+  animation: pop 0.24s ease-out both;
+}
+.hit-title {
+  color: #ffc9d3;
+  letter-spacing: 0.22em;
+  font-weight: 900;
+  margin-bottom: 0.25rem;
+}
+.hit-name {
+  font-size: 1.18rem;
+  font-weight: 900;
+  color: #fff;
+}
+.hit-rule {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #ffe2e7;
+  line-height: 1.35;
+  margin: 0.65rem 0 1rem;
+}
+
+.guess-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+.guess-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+.guess-card {
+  width: min(92vw, 560px);
+  margin: 12vh auto;
+  background: #101a24;
+  border: 1px solid #253346;
+  border-radius: 20px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+  animation: pop 0.24s ease-out both;
+}
+.guess-title {
+  font-weight: 900;
+}
+
+.result-modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+.result-modal::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+.result-card {
+  width: min(92vw, 520px);
+  margin: 12vh auto;
+  text-align: center;
+  background: #0f1a24;
+  border: 1px solid #243244;
+  border-radius: 18px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+  animation: pop 0.24s ease-out both;
+}
+.result-title {
+  font-weight: 900;
+  margin-bottom: 0.4rem;
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 新增禁令面板：收斂、置底 */
+.add-panel {
+  margin: 1.5rem 0 0.5rem;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  padding: 0.85rem 1.2rem;
+  color: #c6cfdb;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 11, 14, 0),
+    rgba(9, 11, 14, 0.92) 30%,
+    rgba(9, 11, 14, 0.96)
+  );
+  border-top: 1px solid #1e2a38;
+}
