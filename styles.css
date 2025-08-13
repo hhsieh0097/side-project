@@ -72,6 +72,15 @@ button {
   padding: 0.65rem 1rem;
   border-radius: 12px;
 }
+/* 新增 Danger 樣式（重開房用） */
+.danger {
+  background: var(--danger);
+  color: var(--danger-ink);
+  border: none;
+  padding: 0.8rem 1.05rem;
+  border-radius: 14px;
+  font-weight: 800;
+}
 
 /* Layout */
 main {

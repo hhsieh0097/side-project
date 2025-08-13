@@ -75,6 +75,7 @@ const presenceEl = $("#presence");
 const roomCodeEl = $("#roomCode");
 const hostBar = $("#hostBar");
 const btnRedistribute = $("#btnRedistribute");
+const btnReset = $("#btnReset");
 const poolStat = $("#poolStat");
 
 const inpNewRule = $("#inpNewRule");
@@ -99,6 +100,9 @@ const btnCloseResult = $("#btnCloseResult");
 const btnInfo = $("#btnInfo");
 const dlgInfo = $("#dlgInfo");
 const btnCloseInfo = $("#btnCloseInfo");
+
+const dlgReset = $("#dlgReset");
+const btnReloadNow = $("#btnReloadNow");
 
 // ===== Supabase Realtime =====
 let supabaseClient = null;
@@ -213,6 +217,7 @@ btnInfo.addEventListener("click", () => dlgInfo.showModal());
 btnCloseInfo.addEventListener("click", () => dlgInfo.close());
 btnCloseHit.addEventListener("click", () => dlgHit.close());
 btnCloseResult.addEventListener("click", () => dlgResult.close());
+btnReloadNow.addEventListener("click", () => hardReload());
 
 // 卡片閃紅動畫
 function flashCard(id) {
@@ -242,7 +247,7 @@ formJoin.addEventListener("submit", async (e) => {
   send({ t: "REQUEST_FULL" });
 
   showView("board");
-  updateHostUI(); // 進主畫面時先依目前狀態處理
+  updateHostUI();
   renderBoard();
 });
 
@@ -297,7 +302,7 @@ function onPresenceSync() {
   // 只有主持人才會觸發自動分配
   if (amIHost()) assignRulesIfNeeded();
 
-  updateHostUI(); // ✅ 依最新 host 狀態切換 body 類別
+  updateHostUI();
   renderBoard();
 }
 
@@ -317,7 +322,7 @@ function assignRulesIfNeeded() {
   renderBoard();
 }
 
-// Host：全員重分配（只有主持人會動作）
+// Host：全員重分配
 btnRedistribute.addEventListener("click", () => {
   if (!amIHost()) return;
   reassignAllAndBroadcast();
@@ -330,35 +335,16 @@ function reassignAllAndBroadcast() {
   send({ t: "ASSIGN_BULK", mapping });
 }
 
-// Host：單人重抽（只有主持人會動作）
-function reassignOneAndBroadcast(playerId) {
+// ✅ Host：重新開始（清房）
+btnReset.addEventListener("click", () => {
   if (!amIHost()) return;
-  const p = state.players.find((x) => x.id === playerId);
-  if (!p) return;
-  const rule = pickRuleForSingle(playerId);
-  p.rule = rule;
-  save();
-  renderBoard();
-  send({ t: "ASSIGN_RULE", id: playerId, rule });
-}
-function buildNewMappingForPlayers(players) {
-  const poolShuffled = shuffle([...state.pool]);
-  const ps = shuffle([...players]);
-  const mapping = [];
-  for (let i = 0; i < ps.length; i++) {
-    const rule = poolShuffled[i] ?? fallbackRule(ps[i]);
-    mapping.push({ id: ps[i].id, rule });
-  }
-  return mapping;
-}
-function pickRuleForSingle(playerId) {
-  const used = new Set(
-    state.players.filter((p) => p.id !== playerId && p.rule).map((p) => p.rule)
-  );
-  const candidates = state.pool.filter((r) => !used.has(r));
-  if (candidates.length === 0) return fallbackRule({ id: playerId });
-  return candidates[Math.floor(Math.random() * candidates.length)];
-}
+  const ok = confirm("確定要重新開始？這會把所有玩家請出房間，並刷新頁面。");
+  if (!ok) return;
+  // 廣播重置事件
+  send({ t: "RESET", by: state.me.id, at: Date.now() });
+  // 稍等 150ms 讓訊息送達，再本機重載
+  setTimeout(() => hardReload(), 150);
+});
 
 // ===== 新增禁令（任何人） =====
 btnAddRule.addEventListener("click", () => {
@@ -463,13 +449,22 @@ function onMessage(msg) {
       break;
     }
 
+    // ✅ 收到重置：顯示提示並刷新
+    case "RESET": {
+      if (dlgReset.open) dlgReset.close();
+      dlgReset.showModal();
+      // 自動刷新（保留 URL 參數）
+      setTimeout(() => hardReload(), 1200);
+      break;
+    }
+
     case "GUESS":
       if (amIHost()) {
-        const { playerId, text, who } = msg;
+        const { playerId, text } = msg;
         const p = state.players.find((x) => x.id === playerId);
         if (!p || !p.rule) return;
         const ok = fuzzyMatch(text, p.rule);
-        send({ t: "GUESS_RESULT", playerId, ok, guess: text, who });
+        send({ t: "GUESS_RESULT", playerId, ok, guess: text });
       }
       break;
 
@@ -485,6 +480,17 @@ function onMessage(msg) {
       break;
     }
   }
+}
+
+// ===== 重新載入（清理本地狀態後重整） =====
+function hardReload() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
+  try {
+    channel?.unsubscribe();
+  } catch {}
+  location.reload(); // 保留 URL 參數（含 sb/key/room）
 }
 
 // 犯規者提交猜測

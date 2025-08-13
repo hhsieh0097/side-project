@@ -39,8 +39,8 @@
           /></label>
           <label
             >SUPABASE_URL
-            <input id="inpSbUrl" placeholder="https://xxxx.supabase.co" />
-          </label>
+            <input id="inpSbUrl" placeholder="https://xxxx.supabase.co"
+          /></label>
           <label
             >ANON_KEY
             <textarea id="inpSbKey" rows="3" placeholder="ey..."></textarea>
@@ -57,7 +57,7 @@
           <div class="muted small">在線：<span id="presence"></span></div>
         </div>
 
-        <!-- Host 工具列（僅 Host 可見） -->
+        <!-- Host 工具列（僅 Host 可見；CSS 預設隱藏） -->
         <div id="hostBar" class="hostbar">
           <div class="hostbar-left">
             <span class="host-dot"></span> 你是主持人
@@ -66,6 +66,7 @@
             <button id="btnRedistribute" class="primary">
               重新分配（全員）
             </button>
+            <button id="btnReset" class="danger">重新開始（清房）</button>
             <span class="muted small" id="poolStat"></span>
           </div>
         </div>
@@ -123,6 +124,15 @@
         <div class="result-title" id="resultTitle">猜題結果</div>
         <div class="result-body" id="resultBody">內容</div>
         <button id="btnCloseResult" class="primary">關閉</button>
+      </div>
+    </dialog>
+
+    <!-- 重開房間通知（所有人） -->
+    <dialog id="dlgReset" class="result-modal">
+      <div class="result-card">
+        <div class="result-title">房主已重新開始</div>
+        <div class="result-body">頁面將自動重新載入，請重新加入。</div>
+        <button id="btnReloadNow" class="primary">立即重新載入</button>
       </div>
     </dialog>
 
